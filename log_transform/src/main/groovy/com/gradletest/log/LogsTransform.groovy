@@ -97,10 +97,7 @@ class LogsTransform extends Transform {
     }
 
     static void copyJar(JarInput jarInput, TransformOutputProvider outputProvider) {
-        // 重命名输出文件（同目录copyFile会冲突）
-        // 这里也是我的一个疑惑的地方
-        // 几乎所有网上的代码都是这样的
-        // 难道说是 一个 transform 从一个目录读取 jar 文件，处理完成之后然后写回这个目录？？？
+        // 重命名输出文件
         def jarName = jarInput.name
         println("jar = " + jarInput.file.getAbsolutePath())
         def md5Name = DigestUtils.md5Hex(jarInput.file.getAbsolutePath())
