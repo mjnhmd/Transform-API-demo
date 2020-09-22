@@ -1,11 +1,10 @@
-package com.aprz.transformapidemo
+package com.gradletest
 
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.e("dd", "1")
         super.onCreate(savedInstanceState)

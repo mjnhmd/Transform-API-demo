@@ -1,4 +1,4 @@
-package com.aprz.log.asm
+package com.gradletest.log.asm
 
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.MethodVisitor

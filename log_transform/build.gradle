@@ -1,6 +1,5 @@
 apply plugin: 'groovy'
 apply plugin: 'maven'
-apply plugin: 'com.novoda.bintray-release'
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
@@ -11,26 +10,29 @@ dependencies {
     implementation 'commons-io:commons-io:2.5'
 }
 
-sourceCompatibility = "7"
-targetCompatibility = "7"
+
+
+ext {
+    // 从Github上clone下来的项目的本地地址
+    GITHUB_REPO_PATH = "http://nexus.corp.youdao.com/nexus/content/repositories/luna-android-release/"
+    // compile 'com.audienl:super_library:1.0.0'
+    PUBLISH_GROUP_ID = 'com.youdao.luna'
+    PUBLISH_ARTIFACT_ID = 'YDGradleTest'
+    PUBLISH_VERSION = '0.0.2'
+}
 
 uploadArchives {
-    repositories {
-        mavenDeployer {
-            pom.groupId = 'com.aprz.log.inject'
-            pom.artifactId = 'log'
-            pom.version = '1.0.0'
-            repository(url: uri('E:/maven/repository'))
+    repositories.mavenDeployer {
+//        def deployPath = file(project.GITHUB_REPO_PATH)
+        repository(url: project.GITHUB_REPO_PATH) {
+            authentication(userName: "keupload", password: "100200300")
         }
+        pom.project {
+            groupId project.PUBLISH_GROUP_ID
+            artifactId project.PUBLISH_ARTIFACT_ID
+            version project.PUBLISH_VERSION
+        }
+
     }
 }
 
-publish {
-    userOrg = 'aprz512'
-    groupId = 'com.aprz.log.inject'
-    artifactId = 'log'
-    publishVersion = '1.0.0'
-    desc = 'log inject demo'
-    website = 'https://github.com/aprz512/Transform-API-demo'
-    repoName = 'gradle_plugins'
-}

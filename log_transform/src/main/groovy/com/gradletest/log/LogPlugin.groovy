@@ -1,4 +1,4 @@
-package com.aprz.log
+package com.gradletest.log
 
 import com.android.build.gradle.BaseExtension
 import org.gradle.api.Plugin

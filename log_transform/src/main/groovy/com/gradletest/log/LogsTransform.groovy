@@ -1,8 +1,8 @@
-package com.aprz.log
+package com.gradletest.log
 
 import com.android.build.api.transform.*
 import com.android.build.gradle.internal.pipeline.TransformManager
-import com.aprz.log.asm.LogClassVisitor
+import com.gradletest.log.asm.LogClassVisitor
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
