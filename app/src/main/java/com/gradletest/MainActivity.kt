@@ -11,4 +11,8 @@ class MainActivity : AppCompatActivity() {
         Log.e("dd", "9")
         setContentView(R.layout.activity_main)
     }
+
+    override fun onResume() {
+        super.onResume()
+    }
 }

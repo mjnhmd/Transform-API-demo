@@ -18,7 +18,7 @@ ext {
     // compile 'com.audienl:super_library:1.0.0'
     PUBLISH_GROUP_ID = 'com.youdao.luna'
     PUBLISH_ARTIFACT_ID = 'YDGradleTest'
-    PUBLISH_VERSION = '0.0.2'
+    PUBLISH_VERSION = '0.0.3'
 }
 
 uploadArchives {

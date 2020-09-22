@@ -30,19 +30,13 @@ class LogClassVisitor extends ClassVisitor {
         if (!checkSuperClass(this.superName)) {
             return super.visitMethod(access, name, desc, signature, exceptions)
         }
-
-        // 由于是一个例子，我们就只处理 onCreate 方法了，想要深入应该去研究一下一个正规的开源项目
-
-        // 我的 demo 是 kotlin，tools里面有工具可以直接查看字节码，就非常方便
-        if ('onCreate(Landroid/os/Bundle;)V' == (name + desc)) {
-
+//        if ('onCreate(Landroid/os/Bundle;)V' == (name + desc)) {
             println "log >>> method name = ${name + desc}"
-
             MethodVisitor methodVisitor = this.cv.visitMethod(access, name, desc, signature, exceptions)
             return new LogMethodVisitor(methodVisitor, name)
-        }
+//        }
 
-        return super.visitMethod(access, name, desc, signature, exceptions)
+//        return super.visitMethod(access, name, desc, signature, exceptions)
     }
 
     /**
