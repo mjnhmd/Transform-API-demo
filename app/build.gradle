@@ -23,7 +23,7 @@ android {
     }
 }
 
-dependencies {
+def n = {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.0.2'
@@ -32,3 +32,18 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 }
+dependencies(n)
+
+task a  doLast{
+    println "a"
+}
+
+task b doLast{
+    println "b"
+}
+
+task c doLast{
+    println "c"
+}
+
+b.mustRunAfter a

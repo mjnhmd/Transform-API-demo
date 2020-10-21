@@ -1,0 +1,67 @@
+package com.gradletest.log.asm.prego;
+
+import com.gradletest.log.asm.Parameter;
+
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Created by Quinn on 16/09/2018.
+ */
+public final class DebugPreGoClassAdapter extends ClassVisitor{
+
+    private Map<String, List<Parameter>> methodParametersMap = new HashMap<>();
+    private DebugPreGoMethodAdapter debugPreGoMethodAdapter;
+    private boolean needParameter = false;
+
+    private boolean classDebug = true;
+    private List<String> includes = new ArrayList<>();
+    private List<String> impls = new ArrayList<>();
+
+    public DebugPreGoClassAdapter(final ClassVisitor cv) {
+        super(Opcodes.ASM5, cv);
+    }
+
+
+    @Override
+    public MethodVisitor visitMethod(final int access, final String name,
+                                     final String desc, final String signature, final String[] exceptions) {
+        MethodVisitor mv = cv.visitMethod(access, name, desc, signature, exceptions);
+        String methodUniqueKey = name + desc;
+        includes.add(name);
+        debugPreGoMethodAdapter = new DebugPreGoMethodAdapter(name, methodUniqueKey, methodParametersMap, mv, classDebug, new MethodCollector() {
+            @Override
+            public void onIncludeMethod(String methodName, boolean useImpl) {
+                needParameter = true;
+            }
+        });
+        return mv == null ? null : debugPreGoMethodAdapter;
+    }
+
+    public Map<String, List<Parameter>> getMethodParametersMap(){
+        return this.methodParametersMap;
+    }
+
+    public List<String> getIncludes(){
+        return includes;
+    }
+
+    public List<String> getImpls(){
+        return impls;
+    }
+    public boolean isNeedParameter() {
+        return needParameter;
+    }
+
+
+
+    interface MethodCollector{
+        void onIncludeMethod(String methodName, boolean useImpl);
+    }
+}

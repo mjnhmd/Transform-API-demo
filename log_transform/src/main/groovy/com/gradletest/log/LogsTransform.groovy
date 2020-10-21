@@ -2,14 +2,16 @@ package com.gradletest.log
 
 import com.android.build.api.transform.*
 import com.android.build.gradle.internal.pipeline.TransformManager
+import com.gradletest.log.asm.prego.DebugPreGoClassAdapter
+import com.gradletest.log.asm.ExtendClassWriter
 import com.gradletest.log.asm.LogClassVisitor
+
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
 import org.objectweb.asm.ClassReader
-import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.ClassWriter
-
+import com.gradletest.log.asm.ClassLoaderHelper
 class LogsTransform extends Transform {
 
     Project project
@@ -41,7 +43,7 @@ class LogsTransform extends Transform {
     @Override
     void transform(TransformInvocation transformInvocation) throws TransformException, InterruptedException, IOException {
         super.transform(transformInvocation)
-
+        URLClassLoader urlClassLoader = ClassLoaderHelper.getClassLoader(transformInvocation.inputs, transformInvocation.referencedInputs, project);
         // inputs 包含了 jar 包和目录。
         // 子 module 的 java 文件在编译过程中也会生成一个 jar 包然后编译到主工程中。
         transformInvocation.inputs.each {
@@ -54,7 +56,8 @@ class LogsTransform extends Transform {
                         directoryInput.file.eachFileRecurse {
                             File file ->
                                 if (checkFileName(file.name)) {
-                                    injectClassFile(file)
+                                    InputStream inputStream = new FileInputStream(file);
+                                    injectClassFile(file, inputStream, urlClassLoader)
                                 }
                         }
                         copyDirectory(directoryInput, transformInvocation.outputProvider)
@@ -75,11 +78,18 @@ class LogsTransform extends Transform {
                 "R.class" != name && "BuildConfig.class" != name
     }
 
-    static void injectClassFile(File file) {
-        ClassReader classReader = new ClassReader(file.bytes)
-        ClassWriter classWriter = new ClassWriter(classReader, ClassWriter.COMPUTE_MAXS)
-        ClassVisitor cv = new LogClassVisitor(classWriter)
-        classReader.accept(cv, ClassReader.EXPAND_FRAMES)
+    static void injectClassFile(File file, InputStream inputStream, ClassLoader classLoader) {
+        ClassReader classReader = new ClassReader(inputStream);
+        ClassWriter classWriter = new ExtendClassWriter(classLoader, ClassWriter.COMPUTE_MAXS);
+        DebugPreGoClassAdapter debugPreGoClassAdapter = new DebugPreGoClassAdapter(classWriter);
+        classReader.accept(debugPreGoClassAdapter, ClassReader.EXPAND_FRAMES);
+        //if need parameter
+        if(debugPreGoClassAdapter.isNeedParameter()) {
+            classWriter = new ExtendClassWriter(classLoader, ClassWriter.COMPUTE_MAXS);
+            LogClassVisitor debugClassAdapter = new LogClassVisitor(classWriter, debugPreGoClassAdapter.getMethodParametersMap());
+            debugClassAdapter.attachIncludeMethodsAndImplMethods(debugPreGoClassAdapter.getIncludes(),debugPreGoClassAdapter.getImpls());
+            classReader.accept(debugClassAdapter, ClassReader.EXPAND_FRAMES);
+        }
         byte[] code = classWriter.toByteArray()
         FileOutputStream fos = new FileOutputStream(
                 file.parentFile.absolutePath + File.separator + file.name)
